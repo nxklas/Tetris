@@ -13,7 +13,7 @@ namespace Tetris
             InitializeComponent();
             _renderer = new SystemDrawingRenderer();
             _gameManager = new GameManager();
-            _gameObject = new GameObject[] { GameObject.CreateTriangle(50, 50), GameObject.CreateBlock(200, 100) };
+            _gameObject = new GameObject[] { GameObject.CreateTriangle(50, 50), GameObject.CreateBlock(200, 100)};
             _idleTimer.Start();
         }
 

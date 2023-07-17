@@ -24,7 +24,7 @@ namespace Tetris.Core
         }
 
         /// <summary>
-        /// Walks the whole render queue, removes passed elements, and performs the action <paramref name="render"/> on each element.
+        /// Walks the whole render queue, removes passed elements of <typeparamref name="T"/>, and performs the action <paramref name="render"/> on each element.
         /// </summary>
         /// <param name="render">The method that defines how to render.</param>
         protected void WalkQueue<T>(Action<T> render) where T : IRenderable

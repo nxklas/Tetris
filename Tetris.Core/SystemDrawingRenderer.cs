@@ -67,40 +67,18 @@ namespace Tetris.Core
 
         private void DrawPatterns(GameObject obj)
         {
-            var pattern = obj.Pattern;
-            var orientation = obj.Orientation;
             var color = obj.Color;
             var brush = new SolidBrush(color);
 
-            switch (pattern)
-            {
-                case Pattern.Block:
-                    _graphics!.FillRectangle(brush, obj.Position.X, obj.Position.Y, obj.Width, obj.Height);
-                    break;
-                case Pattern.Triangle:
-                    switch (orientation)
+            for (var i = 0; i < obj.Width; i++)
+                for (var j = 0; j < obj.Height; j++)
+                    if (obj.Pattern[i, j])
                     {
-                        case Orientation.Up:
-                            _graphics!.FillRectangle(brush, obj.Position.X + GameObject.SquareSize, obj.Position.Y, GameObject.SquareSize, GameObject.SquareSize);
-                            _graphics!.FillRectangle(brush, obj.Position.X, obj.Position.Y + GameObject.SquareSize, obj.Width, GameObject.SquareSize);
-                            break;
-                        case Orientation.Right:
-                            _graphics!.FillRectangle(brush, obj.Position.X + obj.Width - GameObject.SquareSize, obj.Position.Y + GameObject.SquareSize, GameObject.SquareSize, GameObject.SquareSize);
-                            _graphics!.FillRectangle(brush, obj.Position.X + GameObject.SquareSize, obj.Position.Y, GameObject.SquareSize, obj.Height);
-                            break;
-                        case Orientation.Down:
+                        var x = obj.Position.X + (i * GameObject.SquareSize);
+                        var y = obj.Position.Y + (j * GameObject.SquareSize);
 
-                            break;
-                        case Orientation.Left:
-
-                            break;
-                        default:
-                            throw new Exception($"Could not render pattern. Orientation \"{orientation}\" does not exist.");
+                        _graphics!.FillRectangle(brush, x, y, GameObject.SquareSize, GameObject.SquareSize);
                     }
-                    break;
-                default:
-                    throw new Exception($"Could not render pattern \"{pattern}\". It does not exist.");
-            }
         }
 
         private static class Throw
