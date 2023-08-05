@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using System.Runtime.CompilerServices;
 
 namespace Tetris.Core
 {
@@ -57,7 +56,8 @@ namespace Tetris.Core
 
         private void DrawIngame()
         {
-            WalkQueue<GameObject>(DrawPatterns);
+            DrawBackground();
+            DrawGameObjects();
         }
 
         private void DrawGameOver()
@@ -65,27 +65,57 @@ namespace Tetris.Core
             throw new NotImplementedException();
         }
 
-        private void DrawPatterns(GameObject obj)
+        private void DrawBackground() => WalkQueue<Background>(DrawBackground);
+
+        private void DrawBackground(Background background)
         {
+            var size = GameObject.SquareSize;
+            var width = background.Width;
+            var height = background.Height;
+            var cells = (width > height ? width : height) / size;
+            var color = background.Color;
+            var brush = new SolidBrush(color);
+
+            System.Diagnostics.Debug.Assert(_graphics != null);
+
+            _graphics.FillRectangle(brush, 0, 0, width, height);
+
+            for (var i = 0; i < cells; i++)
+                _graphics.DrawLine(Pens.Black, i * size, 0, i * size, height);
+
+            for (var i = 0; i < cells; i++)
+                _graphics.DrawLine(Pens.Black, 0, i * size, width, i * size);
+        }
+
+        private void DrawGameObjects() => WalkQueue<GameObject>(DrawGameObject);
+
+        private void DrawGameObject(GameObject obj)
+        {
+            var size = GameObject.SquareSize;
             var color = obj.Color;
             var brush = new SolidBrush(color);
 
-            for (var i = 0; i < obj.Width; i++)
-                for (var j = 0; j < obj.Height; j++)
-                    if (obj.Pattern[i, j])
-                    {
-                        var x = obj.Position.X + (i * GameObject.SquareSize);
-                        var y = obj.Position.Y + (j * GameObject.SquareSize);
+            System.Diagnostics.Debug.Assert(_graphics != null);
 
-                        _graphics!.FillRectangle(brush, x, y, GameObject.SquareSize, GameObject.SquareSize);
+            for (var i = 0; i < obj.Width; i++)
+            {
+                var x = obj.Position.X + (i * size);
+
+                for (var j = 0; j < obj.Height; j++)
+                    if (obj.Tetromino[i, j])
+                    {
+                        var y = obj.Position.Y + (j * size);
+
+                        _graphics.FillRectangle(brush, x, y, size, size);
                     }
+            }
         }
 
         private static class Throw
         {
             [DoesNotReturn]
             public static object NullReferenceException_GraphicsUninitialized() =>
-                throw new NullReferenceException($"Graphics object was not initializes. Please call {nameof(InitializeGraphics)}() before use.");
+                throw new NullReferenceException($"Graphics object was not initialized. Please, call {nameof(InitializeGraphics)}() before use.");
         }
     }
 }

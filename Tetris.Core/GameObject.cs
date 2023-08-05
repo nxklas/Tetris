@@ -1,90 +1,106 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Diagnostics;
+using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Tetris.Core
 {
-    public class GameObject : IRenderable
+    public sealed partial class GameObject : IRenderable
     {
         public const int SquareSize = 25;
+        private readonly bool[][,] _tetrominos;
+        private byte _index;
 
-        private GameObject(int x, int y, Color color, PatternInfo info, bool[,] pattern) : this(new Vector2(x, y), color, info, pattern)
+        private GameObject(int x, int y, Color color, TetrominoInfo info) : this(new Vector2(x, y), color, info)
         {
         }
 
-        private GameObject(Vector2 position, Color color, PatternInfo info, bool[,] pattern)
+        private GameObject(Vector2 position, Color color, TetrominoInfo info)
         {
             Position = position;
             Color = color;
             Info = info;
-            Pattern = pattern;
-            TurnRight(); // To make the array declaration for the pattern more readable, values are declared from top to bottom,
-                         // unlike Roslyn would read them out.
-                         // Therefore, it is nessesary to turn the pattern to the right to make it be rendered in the correct direction.
+            _index = 0;
+            _tetrominos = BuildPieces(info);
+            WriteOrientation();
         }
 
-        public PatternInfo Info { get; }
-        public bool[,] Pattern { get; private set; }
+        public Vector2 Position { get; }
         public Color Color { get; }
-        public Vector2 Position { get; private set; }
-        public int Width => Pattern.GetLength(0);
-        public int Height => Pattern.GetLength(1);
+        public TetrominoInfo Info { get; }
+        public bool[,] Tetromino => _tetrominos[_index];
+        public Orientation Orientation => Enum.GetValues<Orientation>()[_index];
+        public int Width => Tetromino.GetLength(0);
+        public int Height => Tetromino.GetLength(1);
         public int TotalWidth => GetLength(Width);
         public int TotalHeight => GetLength(Height);
 
-        public void Gravity()
-        {
-            Position = new(Position.X, Position.Y + SquareSize);
-        }
-
         public void TurnRight()
         {
-            var tilted = new bool[Height, Width];
+            if (_index < 3)
+                _index++;
+            else
+                _index = 0;
 
-            for (var x = Width - 1; x > -1; x--)
-                for (var y = Height - 1; y > -1; y--)
-                    tilted[Height - y - 1, x] = Pattern[x, y];
-
-            Pattern = tilted;
+            Assert_IndexInsideBounds();
+            WriteOrientation();
         }
 
         public void TurnLeft()
         {
-            var tilted = new bool[Height, Width];
+            if (_index > 0)
+                _index--;
+            else
+                _index = 3;
 
-            for (var x = Width - 1; x > -1; x--)
-                for (var y = Height - 1; y > -1; y--)
-                    tilted[y, Width - x - 1] = Pattern[x, y];
-
-            Pattern = tilted;
+            Assert_IndexInsideBounds();
+            WriteOrientation();
         }
 
-        public static GameObject CreateBlock(int x, int y) => new(x, y,
-                                                                  Color.Yellow,
-                                                                  PatternInfo.Block,
-                                                                  new bool[,]
-                                                                  {
-                                                                      { true, true },
-                                                                      { true, true }
-                                                                  });
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void WriteOrientation() => Debug.WriteLine("Current orientation: " + Orientation);
 
-        public static GameObject CreateTriangle(int x, int y) => new(x, y,
-                                                                     Color.Green,
-                                                                     PatternInfo.Triangle,
-                                                                     new bool[,]
-                                                                     {
-                                                                         { false, true, false },
-                                                                         { true, true, true },
-                                                                         { false, false, false }
-                                                                     });
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Assert_IndexInsideBounds() => Debug.Assert(_index >= 0 && _index <= 3);
+
+        public static GameObject CreateI(int x, int y) => new(x, y, FromRgb(49, 199, 239), TetrominoInfo.I);
+
+        public static GameObject CreateO(int x, int y) => new(x, y, FromRgb(247, 211, 8), TetrominoInfo.O);
+
+        public static GameObject CreateT(int x, int y) => new(x, y, FromRgb(173, 77, 156), TetrominoInfo.T);
+
+        public static GameObject CreateS(int x, int y) => new(x, y, FromRgb(66, 182, 66), TetrominoInfo.S);
+
+        public static GameObject CreateZ(int x, int y) => new(x, y, FromRgb(239, 32, 41), TetrominoInfo.Z);
+
+        public static GameObject CreateJ(int x, int y) => new(x, y, FromRgb(90, 101, 173), TetrominoInfo.J);
+
+        public static GameObject CreateL(int x, int y) => new(x, y, FromRgb(239, 121, 33), TetrominoInfo.L);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int GetLength(int length) => SquareSize * length;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static Color FromRgb(byte r, byte g, byte b) => Color.FromArgb(r, g, b);
     }
 
-    public enum PatternInfo
+    public enum TetrominoInfo
     {
-        Block,
-        Triangle,
+        I,
+        O,
+        T,
+        S,
+        Z,
+        J,
+        L
+    }
+
+    public enum Orientation
+    {
+        Up,
+        Right,
+        Down,
+        Left
     }
 }

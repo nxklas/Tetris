@@ -13,9 +13,9 @@ namespace Tetris.Core
 
         public abstract void Draw(GameState state);
 
-        public void Append(params GameObject[] objs) => AppendRenderable(objs);
+        internal void Append(params GameObject[] objs) => AppendRenderable(objs);
 
-        protected void AppendRenderable(params IRenderable[] objs)
+        internal void AppendRenderable(params IRenderable[] objs)
         {
             if (objs.Length == 0)
                 Throw.ArgumentException_NoElementsToAppend(nameof(objs));

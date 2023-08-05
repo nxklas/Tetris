@@ -28,19 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
-            _idleTimer = new System.Windows.Forms.Timer(components);
             SuspendLayout();
-            // 
-            // _idleTimer
-            // 
-            _idleTimer.Tick += _idleTimer_Tick;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            DoubleBuffered = true;
             Name = "Form1";
             Text = "Form1";
             Paint += Form1_Paint;
@@ -49,7 +44,5 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Timer _idleTimer;
     }
 }
