@@ -88,7 +88,7 @@ namespace Tetris.Core
             if (row < 0)
                 throw new ArgumentOutOfRangeException(nameof(row));
 
-            if (row > Width)
+            if (row >= Width)
                 throw new ArgumentOutOfRangeException(nameof(row));
 
             for (var i = 0; i < Width; i++)
@@ -100,7 +100,7 @@ namespace Tetris.Core
             if (column < 0)
                 throw new ArgumentOutOfRangeException(nameof(column));
 
-            if (column > Height)
+            if (column >= Height)
                 throw new ArgumentOutOfRangeException(nameof(column));
 
             for (var i = 0; i < Height; i++)
