@@ -1,89 +1,146 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Numerics;
-using System.Timers;
+using System.Diagnostics;
 
 namespace Tetris.Core
 {
     public sealed class GameManager
     {
+        public const int CellsX = 10;
+        public const int CellsY = 22;
+        public const int GridWidth = CellsX * GameObject.SquareSize;
+        public const int GridHeight = CellsY * GameObject.SquareSize;
+        private static readonly Tetromino[] Infos = Enum.GetValues<Tetromino>();
+        private static readonly Random Random = new();
         private readonly GameStateManager _gameStateManager;
-        private readonly Background _background;
         private readonly Renderer _renderer;
-        private readonly Timer _timer;
-        private bool _started;
-        private readonly GameObject[] _gameObjects;
+        private readonly Background _background;
+        private readonly List<GameObject> _rigids;
+        private GameObject _current;
+        private GameObject _lookahead;
+        private bool _isRunning;
+        private Stopwatch _watch;
 
-        public GameManager(int width, int height, Renderer renderer)
+        public GameManager(Renderer renderer)
         {
             _gameStateManager = new GameStateManager();
             _gameStateManager.SetIngame();
-            _background = new(System.Drawing.Color.Gray, width, height);
-            _gameObjects = new GameObject[] { GameObject.CreateJ(150, 150) };
             _renderer = renderer;
-            _timer = new Timer(250);
-            _timer.Elapsed += (sender, args) => Update();
-            _started = false;
+            _background = new(System.Drawing.Color.Gray, GridWidth, GridHeight);
+            _rigids = new();
+            _current = GetRandomObject();
+            _lookahead = GetRandomObject();
+            _isRunning = false;
+            _watch = new();
         }
 
-        public GameObject Current => _gameObjects[0];
+        public GameObject Current => _current;
         public GameState State => _gameStateManager.State;
         public int Width => _background.Width;
         public int Height => _background.Height;
 
         public void Start()
         {
-            if (_started)
+            if (_isRunning)
                 return;
-            _timer.Start();
-            _started = true;
+
+            _watch.Start();
+            _isRunning = true;
         }
 
         public void Stop()
         {
-            if (!_started)
+            if (!_isRunning)
                 return;
-            _timer.Stop();
-            _started = false;
+
+            _watch = new();
+            _isRunning = false;
         }
 
-        private void Update()
+        public void Drop()
         {
+            throw new NotImplementedException();
+        }
+
+        public void MoveLeft()
+        {
+            _current.MoveLeft();
+        }
+
+        public void MoveRight()
+        {
+            _current.MoveRight();
+        }
+
+        public void TurnLeft()
+        {
+            _current.TurnLeft();
+        }
+
+        public void TurnRight()
+        {
+            _current.TurnRight();
+        }
+
+        public void Update()
+        {
+            if (_isRunning && _watch.ElapsedMilliseconds / 500 == 1)
+            {
+                _watch = Stopwatch.StartNew();
+                Update_Internal();
+            }
+
             _renderer.AppendRenderable(_background);
-            _renderer.AppendRenderable(_gameObjects);
-            Redraw?.Invoke(this, new EventArgs());
+            _renderer.Append(_current);
+
+            _renderer.Append(_rigids);
+        }
+
+        private void Update_Internal()
+        {
+            if (!DoesCollide())
+                _current.Gravity();
+            else
+                _lookahead = _current;
         }
 
         private bool DoesCollide()
         {
-
+            foreach(var pieces in _current.GetBottom())
+            {
+                var bottom=pieces.Y + _current.Position.Y + _current.Height;
+                if(bottom >=Height)
+                    return true;
+            }
 
             return false;
         }
 
-        public event EventHandler? Redraw;
-    }
-
-    internal sealed class Rigid : IEnumerable<GameObject>
-    {
-        private readonly List<GameObject> _objects;
-
-        public Rigid()
+        private static GameObject GetRandomObject()
         {
-            _objects = new List<GameObject>();
+            var index = Random.Next(Infos.Length);
+            var info = Infos[index];
+            var x = GetRandomX();
+
+            return info switch
+            {
+                Tetromino.I => GameObject.CreateI(x, 0),
+                Tetromino.O => GameObject.CreateO(x, 0),
+                Tetromino.T => GameObject.CreateT(x, 0),
+                Tetromino.S => GameObject.CreateS(x, 0),
+                Tetromino.Z => GameObject.CreateZ(x, 0),
+                Tetromino.J => GameObject.CreateJ(x, 0),
+                Tetromino.L => GameObject.CreateL(x, 0),
+                Tetromino.Debug => GetRandomObject(),
+                _ => throw new Exception($"Unexpected tetromino info: {info}.")
+            };
         }
 
-        public int GetHighestObjAt(int column)
+        private static int GetRandomX()
         {
-            var a = _objects.Where(a => a.Width >= column && a.Width + GameObject.SquareSize < column).Max(a => a.Height);
-            return a;
+            var column = Random.Next(CellsX + 1);
+            var coordinate = column * GameObject.SquareSize;
+            return coordinate;
         }
-
-        public IEnumerator<GameObject> GetEnumerator() => _objects.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

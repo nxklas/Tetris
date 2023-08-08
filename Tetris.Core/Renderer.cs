@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Tetris.Core
 {
     public abstract class Renderer
     {
-        private readonly System.Collections.Generic.List<IRenderable> _renderQueue;
+        private readonly List<IRenderable> _renderQueue;
 
         protected Renderer()
         {
@@ -15,12 +16,17 @@ namespace Tetris.Core
 
         internal void Append(params GameObject[] objs) => AppendRenderable(objs);
 
-        internal void AppendRenderable(params IRenderable[] objs)
+        internal void AppendRenderable(params IRenderable[] renderables)
         {
-            if (objs.Length == 0)
-                Throw.ArgumentException_NoElementsToAppend(nameof(objs));
+            if (renderables.Length == 0)
+                Throw.ArgumentException_NoElementsToAppend(nameof(renderables));
 
-            _renderQueue.AddRange(objs);
+            _renderQueue.AddRange(renderables);
+        }
+
+        internal void Append(IList<GameObject> gameObjects)
+        {
+            _renderQueue.AddRange(gameObjects);
         }
 
         /// <summary>

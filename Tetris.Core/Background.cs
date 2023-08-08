@@ -5,7 +5,6 @@ namespace Tetris.Core
 {
     internal class Background : IRenderable
     {
-
         public Background(Color color, int width, int height)
         {
             Position = new Vector2(0, 0);

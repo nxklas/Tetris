@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics;
 using System.Drawing;
 
 namespace Tetris.Core
@@ -76,7 +76,7 @@ namespace Tetris.Core
             var color = background.Color;
             var brush = new SolidBrush(color);
 
-            System.Diagnostics.Debug.Assert(_graphics != null);
+            Debug.Assert(_graphics != null);
 
             _graphics.FillRectangle(brush, 0, 0, width, height);
 
@@ -95,27 +95,31 @@ namespace Tetris.Core
             var color = obj.Color;
             var brush = new SolidBrush(color);
 
-            System.Diagnostics.Debug.Assert(_graphics != null);
+            Debug.Assert(_graphics != null);
 
             for (var i = 0; i < obj.Width; i++)
             {
                 var x = obj.Position.X + (i * size);
 
                 for (var j = 0; j < obj.Height; j++)
-                    if (obj.Tetromino[i, j])
-                    {
-                        var y = obj.Position.Y + (j * size);
+                {
+                    var y = obj.Position.Y + (j * size);
 
+                    if (obj.Tetromino[i, j])
                         _graphics.FillRectangle(brush, x, y, size, size);
-                    }
+#if DEBUG
+                    else
+                        _graphics.FillRectangle(Brushes.Black, x, y, size, size);
+#endif
+                }
             }
         }
 
         private static class Throw
         {
-            [DoesNotReturn]
+            [System.Diagnostics.CodeAnalysis.DoesNotReturn]
             public static object NullReferenceException_GraphicsUninitialized() =>
-                throw new NullReferenceException($"Graphics object was not initialized. Please, call {nameof(InitializeGraphics)}() before use.");
+                throw new NullReferenceException($"Graphics object was not initialized. Please call {nameof(InitializeGraphics)}() before use.");
         }
     }
 }
