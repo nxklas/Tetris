@@ -1,33 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Tetris.Core
 {
-    public sealed partial class GameObject : IRenderable
+    public sealed partial class GameObject : IRenderable, ICloneable
     {
         public const int SquareSize = 25;
         private static readonly Orientation[] Orientations = Enum.GetValues<Orientation>();
         private static readonly byte Orientations_MaxIndex;
+        internal static readonly TetrominoFacts I = new(CreateI(0, 0));
+        internal static readonly TetrominoFacts O = new(CreateO(0, 0));
+        internal static readonly TetrominoFacts T = new(CreateT(0, 0));
+        internal static readonly TetrominoFacts S = new(CreateS(0, 0));
+        internal static readonly TetrominoFacts Z = new(CreateZ(0, 0));
+        internal static readonly TetrominoFacts J = new(CreateJ(0, 0));
+        internal static readonly TetrominoFacts L = new(CreateL(0, 0));
         private readonly bool[][,] _tetrominos;
         private byte _index;
         private Vector2 _position;
-
-        private GameObject(int x, int y, Color color, Tetromino info) : this(new Vector2(x, y), color, info)
-        {
-        }
-
-        private GameObject(Vector2 position, Color color, Tetromino info)
-        {
-            _position = position;
-            Color = color;
-            Info = info;
-            _index = 0;
-            _tetrominos = BuildPieces(info);
-            DebugState();
-        }
+        private Color _color;
+        private bool _isGhost;
 
         static GameObject()
         {
@@ -36,126 +30,138 @@ namespace Tetris.Core
             Orientations_MaxIndex = unchecked((byte)maxIndex);
         }
 
+        private GameObject(float x, float y, Color color, TetrominoInfo info) : this(new Vector2(x, y), color, info)
+        {
+        }
+
+        private GameObject(Vector2 position, Color color, TetrominoInfo info)
+        {
+            _tetrominos = BuildPieces(info);
+            _position = position;
+            _color = color;
+            Info = info;
+            Index = 0;
+            _isGhost = false;
+        }
+
         public Vector2 Position => _position;
-        public Color Color { get; }
-        public Tetromino Info { get; }
-        public bool[,] Tetromino => _tetrominos[_index];
-        public Orientation Orientation => Orientations[_index];
+        public Color Color => _color;
+        public TetrominoInfo Info { get; }
+        public bool[,] Tetromino => _tetrominos[Index];
+        public Orientation Orientation => Orientations[Index];
         public int Width => Tetromino.GetLength(0);
         public int Height => Tetromino.GetLength(1);
         public int TotalWidth => GetLength(Width);
         public int TotalHeight => GetLength(Height);
-
-        internal void Gravity()
+        private byte Index
         {
-            _position = new(_position.X, _position.Y + SquareSize);
+            get => _index;
+            set
+            {
+                _index = value;
+                DebugState();
+            }
         }
+        internal bool IsGhost => _isGhost;
 
-        internal void MoveRight()
-        {
-            _position = new(_position.X + SquareSize, _position.Y);
-        }
-
-        internal void MoveLeft()
-        {
-            _position = new(_position.X - SquareSize, _position.Y);
-        }
-
-        internal void TurnRight()
-        {
-            if (_index < Orientations_MaxIndex)
-                _index++;
-            else
-                _index = 0;
-
-            Assert_IndexInsideBounds();
-            DebugState();
-        }
-
-        internal void TurnLeft()
-        {
-            if (_index > 0)
-                _index--;
-            else
-                _index = Orientations_MaxIndex;
-
-            Assert_IndexInsideBounds();
-            DebugState();
-        }
-
-        public IEnumerable<Piece> GetRow(int row)
+        public Piece[] GetRow(int row)
         {
             if (row < 0)
                 throw new ArgumentOutOfRangeException(nameof(row));
 
-            if (row >= Width)
+            if (row >= Height)
                 throw new ArgumentOutOfRangeException(nameof(row));
 
-            for (var i = 0; i < Width; i++)
-                yield return new Piece(Tetromino[i, row], i, row);
+            var result = new Piece[Width];
+
+            for (var i = 0; i < result.Length; i++)
+                result[i] = new Piece(Tetromino[i, row], i, row);
+
+            return result;
         }
 
-        public IEnumerable<Piece> GetColumn(int column)
+        public Piece[] GetColumn(int column)
         {
             if (column < 0)
                 throw new ArgumentOutOfRangeException(nameof(column));
 
-            if (column >= Height)
+            if (column >= Width)
                 throw new ArgumentOutOfRangeException(nameof(column));
 
-            for (var i = 0; i < Height; i++)
-                yield return new Piece(Tetromino[column, i], column, i);
+            var result = new Piece[Height];
+
+            for (var i = 0; i < result.Length; i++)
+                result[i] = new Piece(Tetromino[column, i], column, i);
+
+            return result;
         }
 
-        public IEnumerable<Piece> GetTop() => GetRow(0);
+        public Piece[] GetTop() => GetRow(0);
 
-        public IEnumerable<Piece> GetRight() => GetColumn(Width - 1);
+        public Piece[] GetRight() => GetColumn(Width - 1);
 
-        public IEnumerable<Piece> GetBottom() => GetRow(Height - 1);
+        public Piece[] GetBottom() => GetRow(Height - 1);
 
-        public IEnumerable<Piece> GetLeft() => GetColumn(0);
+        public Piece[] GetLeft() => GetColumn(0);
 
-        internal static GameObject CreateDebug(int x, int y) => new(x, y, Color.RebeccaPurple, Core.Tetromino.Debug);
+        public GameObject Clone() => (GameObject)(this as ICloneable).Clone();
 
-        public static GameObject CreateI(int x, int y) => new(x, y, FromRgb(49, 199, 239), Core.Tetromino.I);
+        object ICloneable.Clone() => MemberwiseClone();
 
-        public static GameObject CreateO(int x, int y) => new(x, y, FromRgb(247, 211, 8), Core.Tetromino.O);
+        internal void Gravity() => _position = new(_position.X, _position.Y + SquareSize);
 
-        public static GameObject CreateT(int x, int y) => new(x, y, FromRgb(173, 77, 156), Core.Tetromino.T);
+        internal void MoveRight() => _position = new(_position.X + SquareSize, _position.Y);
 
-        public static GameObject CreateS(int x, int y) => new(x, y, FromRgb(66, 182, 66), Core.Tetromino.S);
+        internal void MoveLeft() => _position = new(_position.X - SquareSize, _position.Y);
 
-        public static GameObject CreateZ(int x, int y) => new(x, y, FromRgb(239, 32, 41), Core.Tetromino.Z);
+        internal void TurnRight()
+        {
+            if (Index < Orientations_MaxIndex)
+                Index++;
+            else
+                Index = 0;
 
-        public static GameObject CreateJ(int x, int y) => new(x, y, FromRgb(90, 101, 173), Core.Tetromino.J);
+            Assert_IndexInsideBounds();
+        }
 
-        public static GameObject CreateL(int x, int y) => new(x, y, FromRgb(239, 121, 33), Core.Tetromino.L);
+        internal void TurnLeft()
+        {
+            if (Index > 0)
+                Index--;
+            else
+                Index = Orientations_MaxIndex;
+
+            Assert_IndexInsideBounds();
+        }
+
+        internal void Ghostify()
+        {
+            _color = Color.FromArgb(50, _color);
+            _isGhost = true;
+        }
+
+        public static GameObject CreateI(float x, float y) => new(x,y, FromRgb(49, 199, 239), TetrominoInfo.I);
+
+        public static GameObject CreateO(float x, float y) => new(x,y, FromRgb(247, 211, 8), TetrominoInfo.O);
+
+        public static GameObject CreateT(float x, float y) => new(x, y, FromRgb(173, 77, 156), TetrominoInfo.T);
+
+        public static GameObject CreateS(float x, float y) => new(x, y, FromRgb(66, 182, 66), TetrominoInfo.S);
+
+        public static GameObject CreateZ(float x, float y) => new(x, y, FromRgb(239, 32, 41), TetrominoInfo.Z);
+
+        public static GameObject CreateJ(float x, float y) => new(x, y, FromRgb(90, 101, 173), TetrominoInfo.J);
+
+        public static GameObject CreateL(float x, float y) => new(x, y, FromRgb(239, 121, 33), TetrominoInfo.L);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int GetLength(int length) => SquareSize * length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Color FromRgb(byte r, byte g, byte b) => Color.FromArgb(r, g, b);
+        private static Color FromRgb(byte r, byte g, byte b) => Color.FromArgb(255, r, g, b);
     }
 
-    public readonly struct TetrominoInfo
-    {
-        public static readonly TetrominoInfo I = new(Tetromino.I, 4, 4);
-        public static readonly TetrominoInfo O = new(Tetromino.O, 3, 3);
-
-        private TetrominoInfo(Tetromino tetromino, int width, int height)
-        {
-            Tetromino = tetromino;
-            Width = width;
-            Height = height;
-        }
-
-        public Tetromino Tetromino { get; }
-        public int Width { get; }
-        public int Height { get; }
-    }
-
-    public enum Tetromino
+    public enum TetrominoInfo
     {
         I,
         O,
@@ -163,8 +169,7 @@ namespace Tetris.Core
         S,
         Z,
         J,
-        L,
-        Debug
+        L
     }
 
     public enum Orientation
@@ -173,5 +178,18 @@ namespace Tetris.Core
         Right,
         Down,
         Left
+    }
+
+    internal readonly struct TetrominoFacts
+    {
+        private readonly GameObject _obj;
+
+        public TetrominoFacts(GameObject obj)
+        {
+            _obj = obj;
+        }
+
+        public int Width => _obj.Width;
+        public int Height => _obj.Height;
     }
 }

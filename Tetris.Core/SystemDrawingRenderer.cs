@@ -62,7 +62,19 @@ namespace Tetris.Core
 
         private void DrawGameOver()
         {
-            throw new NotImplementedException();
+            DrawIngame();
+            DrawGameOverText();
+        }
+
+        private void DrawGameOverText()
+        {
+            WalkQueue<RenderableText>(DrawGameOverText);
+        }
+
+        private void DrawGameOverText(RenderableText text)
+        {
+            Debug.Assert(_graphics != null);
+            _graphics.DrawString(text.Text, SystemFonts.DefaultFont, new SolidBrush(text.Color), text.Position.X, text.Position.Y);
         }
 
         private void DrawBackground() => WalkQueue<Background>(DrawBackground);
@@ -72,7 +84,8 @@ namespace Tetris.Core
             var size = GameObject.SquareSize;
             var width = background.Width;
             var height = background.Height;
-            var cells = (width > height ? width : height) / size;
+            var xCells = width / size;
+            var yCells = height / size;
             var color = background.Color;
             var brush = new SolidBrush(color);
 
@@ -80,10 +93,10 @@ namespace Tetris.Core
 
             _graphics.FillRectangle(brush, 0, 0, width, height);
 
-            for (var i = 0; i < cells; i++)
+            for (var i = 0; i < xCells; i++)
                 _graphics.DrawLine(Pens.Black, i * size, 0, i * size, height);
 
-            for (var i = 0; i < cells; i++)
+            for (var i = 0; i < yCells; i++)
                 _graphics.DrawLine(Pens.Black, 0, i * size, width, i * size);
         }
 
@@ -91,6 +104,9 @@ namespace Tetris.Core
 
         private void DrawGameObject(GameObject obj)
         {
+            //if (obj.IsGhost)
+            //    return;
+
             var size = GameObject.SquareSize;
             var color = obj.Color;
             var brush = new SolidBrush(color);
@@ -109,7 +125,7 @@ namespace Tetris.Core
                         _graphics.FillRectangle(brush, x, y, size, size);
 #if DEBUG
                     else
-                        _graphics.FillRectangle(Brushes.Black, x, y, size, size);
+                        _graphics.FillRectangle(new SolidBrush(Color.FromArgb(25, Color.Black)), x, y, size, size);
 #endif
                 }
             }

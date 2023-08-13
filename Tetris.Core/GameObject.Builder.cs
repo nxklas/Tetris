@@ -2,16 +2,15 @@
 {
     partial class GameObject
     {
-        public static bool[][,] BuildPieces(Tetromino info) => info switch
+        internal static bool[][,] BuildPieces(TetrominoInfo info) => info switch
         {
-            Core.Tetromino.I => BuildI(),
-            Core.Tetromino.O => BuildO(),
-            Core.Tetromino.T => BuildT(),
-            Core.Tetromino.S => BuildS(),
-            Core.Tetromino.Z => BuildZ(),
-            Core.Tetromino.J => BuildJ(),
-            Core.Tetromino.L => BuildL(),
-            Core.Tetromino.Debug => BuildDebug(),
+            TetrominoInfo.I => BuildI(),
+            TetrominoInfo.O => BuildO(),
+            TetrominoInfo.T => BuildT(),
+            TetrominoInfo.S => BuildS(),
+            TetrominoInfo.Z => BuildZ(),
+            TetrominoInfo.J => BuildJ(),
+            TetrominoInfo.L => BuildL(),
             _ => throw new System.Exception($"Unexpected pattern: {info}; thus, unable to build pattern.")
         };
 
@@ -208,30 +207,6 @@
                 { true, false, false },
                 { true, true, true },
                 { false, false, false }
-            }
-        };
-
-        private static bool[][,] BuildDebug() => new bool[][,]
-        {
-            new bool[,]
-            {
-                { false, true },
-                { true, false }
-            },
-            new bool[,]
-            {
-                { false, true },
-                { true, false }
-            },
-            new bool[,]
-            {
-                { false, true },
-                { true, false }
-            },
-            new bool[,]
-            {
-               { false, true },
-               { true, false }
             }
         };
     }

@@ -4,16 +4,16 @@ namespace Tetris
 {
     public sealed partial class Form1 : Form
     {
-        private readonly SystemDrawingRenderer _renderer;
         private readonly GameManager _gameManager;
+        private readonly SystemDrawingRenderer _renderer;
 
         public Form1()
         {
             InitializeComponent();
+            _gameManager = new GameManager();
             _renderer = new SystemDrawingRenderer();
-            _gameManager = new GameManager(_renderer);
-            _gameManager.Start();
-            _timer1.Start();
+            _gameTimer.Start();
+            _renderTimer.Start();
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
@@ -44,10 +44,20 @@ namespace Tetris
             }
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void renderTimer_Tick(object sender, EventArgs e)
+        {
+            _renderer.AppendRenderables(_gameManager.Renderables);
+            if(_gameManager.State == GameState.GameOver)
+            {
+                var text = new RenderableText("Game Over", Color.Red, 150,150);
+                _renderer.AppendRenderables(text);
+            }
+            Refresh();
+        }
+
+        private void gameTimer_Tick(object sender, EventArgs e)
         {
             _gameManager.Update();
-            Refresh();
         }
     }
 }

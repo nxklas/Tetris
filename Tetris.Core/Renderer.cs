@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Tetris.Core
 {
@@ -14,19 +15,14 @@ namespace Tetris.Core
 
         public abstract void Draw(GameState state);
 
-        internal void Append(params GameObject[] objs) => AppendRenderable(objs);
+        public void AppendRenderables(params IRenderable[] renderables) => AppendRenderables((IEnumerable<IRenderable>)renderables);
 
-        internal void AppendRenderable(params IRenderable[] renderables)
+        public void AppendRenderables(IEnumerable<IRenderable> renderables)
         {
-            if (renderables.Length == 0)
+            if (renderables.Count() == 0)
                 Throw.ArgumentException_NoElementsToAppend(nameof(renderables));
 
             _renderQueue.AddRange(renderables);
-        }
-
-        internal void Append(IList<GameObject> gameObjects)
-        {
-            _renderQueue.AddRange(gameObjects);
         }
 
         /// <summary>

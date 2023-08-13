@@ -9,31 +9,31 @@ namespace Tetris.Core
     {
         [Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void DebugLine(object obj) => Debug.WriteLine(obj);
+        internal static void DebugLine(object value) => Debug.WriteLine(value);
 
         [Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void DebugOrientation() => DebugLine("Current orientation: " + Orientation);
+        internal void DebugOrientation() => DebugLine("Current orientation: " + Orientation);
 
         [Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void DebugTop() => DebugLine($"{Info} Top: " + FlattenPieces(GetTop()));
+        internal void DebugTop() => DebugLine($"{Info} Top: " + FlattenPieces(GetTop()));
 
         [Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void DebugBottom() => DebugLine($"{Info} Bottom: " + FlattenPieces(GetBottom()));
+        internal void DebugBottom() => DebugLine($"{Info} Bottom: " + FlattenPieces(GetBottom()));
 
         [Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void DebugLeft() => DebugLine($"{Info} Left: " + FlattenPieces(GetLeft()));
+        internal void DebugLeft() => DebugLine($"{Info} Left: " + FlattenPieces(GetLeft()));
 
         [Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void DebugRight() => DebugLine($"{Info} Right: " + FlattenPieces(GetRight()));
+        internal void DebugRight() => DebugLine($"{Info} Right: " + FlattenPieces(GetRight()));
 
         [Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void DebugState()
+        internal void DebugState()
         {
             DebugOrientation();
             DebugTop();
@@ -44,12 +44,12 @@ namespace Tetris.Core
 
         [Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Assert_IndexInsideBounds() => Debug.Assert(_index >= 0 && _index <= Orientations_MaxIndex);
+        internal void Assert_IndexInsideBounds() => Debug.Assert(Index >= 0 && Index <= Orientations_MaxIndex);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void AssertByte(int value) => Debug.Assert(value >= byte.MinValue && value <= byte.MaxValue);
+        internal static void AssertByte(int value) => Debug.Assert(value >= byte.MinValue && value <= byte.MaxValue);
 
-        private static string FlattenPieces(IEnumerable<Piece> pieces)
+        internal static string FlattenPieces(IEnumerable<Piece> pieces)
         {
             var builder = new System.Text.StringBuilder();
             var count = pieces.Count();

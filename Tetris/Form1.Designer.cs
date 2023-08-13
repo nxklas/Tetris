@@ -29,13 +29,19 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            _timer1 = new System.Windows.Forms.Timer(components);
+            _renderTimer = new System.Windows.Forms.Timer(components);
+            _gameTimer = new System.Windows.Forms.Timer(components);
             SuspendLayout();
             // 
-            // timer1
+            // renderTimer
             // 
-            _timer1.Interval = 250;
-            _timer1.Tick += timer1_Tick;
+            _renderTimer.Interval = 250;
+            _renderTimer.Tick += renderTimer_Tick;
+            // 
+            // gameTimer
+            // 
+            _gameTimer.Interval = 750;
+            _gameTimer.Tick += gameTimer_Tick;
             // 
             // Form1
             // 
@@ -52,6 +58,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Timer _timer1;
+        private System.Windows.Forms.Timer _renderTimer;
+        private System.Windows.Forms.Timer _gameTimer;
     }
 }

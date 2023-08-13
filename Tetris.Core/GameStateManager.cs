@@ -1,13 +1,25 @@
-﻿namespace Tetris.Core
+﻿using System.Diagnostics;
+
+namespace Tetris.Core
 {
     public sealed class GameStateManager
     {
+        private GameState _gameState;
+
         public GameStateManager()
         {
-            State = GameState.Menu;
+            _gameState = GameState.Menu;
         }
 
-        public GameState State { get; private set; }
+        public GameState State
+        {
+            get => _gameState;
+            private set
+            {
+                _gameState = value;
+                Debug.WriteLine($"Game state changed to: {value}.");
+            }
+        }
 
         public void SetMenu() => State = GameState.Menu;
 
