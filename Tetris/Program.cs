@@ -1,3 +1,6 @@
+using System;
+using System.Windows.Forms;
+
 namespace Tetris
 {
     internal static class Program

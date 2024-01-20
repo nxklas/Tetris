@@ -1,16 +1,16 @@
 ﻿namespace Tetris.Core
 {
-    partial class GameObject
+    partial struct Tetromino
     {
-        internal static bool[][,] BuildPieces(TetrominoInfo info) => info switch
+        private static bool[][,] BuildPieces(Kind info) => info switch
         {
-            TetrominoInfo.I => BuildI(),
-            TetrominoInfo.O => BuildO(),
-            TetrominoInfo.T => BuildT(),
-            TetrominoInfo.S => BuildS(),
-            TetrominoInfo.Z => BuildZ(),
-            TetrominoInfo.J => BuildJ(),
-            TetrominoInfo.L => BuildL(),
+            Kind.I => BuildI(),
+            Kind.O => BuildO(),
+            Kind.T => BuildT(),
+            Kind.S => BuildS(),
+            Kind.Z => BuildZ(),
+            Kind.J => BuildJ(),
+            Kind.L => BuildL(),
             _ => throw new System.Exception($"Unexpected pattern: {info}; thus, unable to build pattern.")
         };
 
@@ -48,21 +48,6 @@
 
         private static bool[][,] BuildO() => new bool[][,]
         {
-            new bool[,]
-            {
-                { true, true },
-                { true, true }
-            },
-            new bool[,]
-            {
-                { true, true },
-                { true, true }
-            },
-            new bool[,]
-            {
-                { true, true },
-                { true, true }
-            },
             new bool[,]
             {
                 { true, true },
@@ -209,5 +194,6 @@
                 { false, false, false }
             }
         };
+
     }
 }

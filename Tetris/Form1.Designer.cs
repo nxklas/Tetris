@@ -29,36 +29,55 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            _renderTimer = new System.Windows.Forms.Timer(components);
-            _gameTimer = new System.Windows.Forms.Timer(components);
+            timer1 = new System.Windows.Forms.Timer(components);
+            pictureBox1 = new System.Windows.Forms.PictureBox();
+            label1 = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
-            // renderTimer
+            // timer1
             // 
-            _renderTimer.Interval = 250;
-            _renderTimer.Tick += renderTimer_Tick;
+            timer1.Interval = 500;
+            timer1.Tick += timer1_Tick;
             // 
-            // gameTimer
+            // pictureBox1
             // 
-            _gameTimer.Interval = 750;
-            _gameTimer.Tick += gameTimer_Tick;
+            pictureBox1.Location = new System.Drawing.Point(280, 350);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Size = new System.Drawing.Size(222, 166);
+            pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            pictureBox1.TabIndex = 0;
+            pictureBox1.TabStop = false;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new System.Drawing.Point(299, 309);
+            label1.Name = "label1";
+            label1.Size = new System.Drawing.Size(38, 15);
+            label1.TabIndex = 1;
+            label1.Text = "label1";
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
-            DoubleBuffered = true;
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(457, 554);
+            Controls.Add(label1);
+            Controls.Add(pictureBox1);
             Name = "Form1";
             Text = "Form1";
             Paint += Form1_Paint;
             KeyDown += Form1_KeyDown;
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
 
-        private System.Windows.Forms.Timer _renderTimer;
-        private System.Windows.Forms.Timer _gameTimer;
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Label label1;
     }
 }
